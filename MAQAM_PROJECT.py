@@ -12,14 +12,13 @@ scales = { 'hijaz': [1,3,1,2,1,3,1], # Maqam Assingment
            'nawa': [2,1,3,1,1,3,1]}
 
 mode = 'pi_mode'# Calculations based on chosen mode
-chord_mode = 'harmonic' # random for random mode, harmonic for harmony mode, null for no chords
-harmonic_speed = 2 # How fast chords
-chord_style = 'slide' # Slide for jumping through notes, and statis for not
+chord_mode = 'dynamic' # 'harmonic' for harmony mode, 'dynamic' for dynamic harmonics null for no chords
+harmonic_speed = 2 # How long do chords last
 n = 50 # Music Sheet Size
-file = 'pi.txt' # Which file to open
-
-scale = [80] # Scale key
-maqam = 'major'# Choose scale
+file = 'phi.txt' # Which file to open
+ 
+scale = [48] # Scale key - [48] for middle C
+maqam = 'hijaz'# Choose scale
 notes = 10 # Number of notes to map
 note_length = [] # An empty vector that will hold not duration values
 
@@ -133,18 +132,6 @@ for i, pitch in enumerate(base):
         MyMIDI.addNote(0, channel, final[0][i]+12, time ,final[1][i] , 100)
         chord.insert(i,final[0][i])
         bar.insert(i,math.floor(time))
-        
-        if chord_mode == 'random' and round(time)%2 == 0 :
-            if chord_style == 'slide':
-                MyMIDI.addNote(1, channel, final[0][i]+24, time ,2/4 , 80)
-                MyMIDI.addNote(1, channel, final[0][i]-12, time + 1/4 ,2/4 , 80)
-                MyMIDI.addNote(1, channel, final[0][i], time + 2/4, 2/4, 80)
-                MyMIDI.addNote(1, channel, final[0][i]-24, time + 3/4 ,2/4 , 80)
-            elif chord_style == 'static':
-                MyMIDI.addNote(1, channel, final[0][i]+24, time,1 , 80)
-                MyMIDI.addNote(1, channel, final[0][i]-12, time,1 , 80)
-                MyMIDI.addNote(1, channel, final[0][i], time,1 , 80)
-                MyMIDI.addNote(1, channel, final[0][i]-24, time ,1 , 80)
                 
         time = time + final[1][i]
         
@@ -158,25 +145,41 @@ track1_time = time
 
 time = 0
 
-if mode == 'pi_mode' and chord_mode == 'harmonic':
+if mode == 'pi_mode':
     for i, pitch in enumerate(base):
+        
         try:
             index = bar.index(time)
         except ValueError:
+            
             try:
                 index = bar.index(time-1)
             except ValueError:
+                
                 try:
                     index = bar.index(time-2)
                 except ValueError:
                     index = bar.index(time-3)
-    
-        MyMIDI.addNote(1, channel, chord[index]+24, time ,harmonic_speed , 80)
-        MyMIDI.addNote(1, channel, chord[index]-12, time ,harmonic_speed , 80)
-        MyMIDI.addNote(1, channel, chord[index]   , time ,harmonic_speed , 80)
+                    
+        if chord_mode == 'harmonics':
+        
+            MyMIDI.addNote(1, channel, chord[index]+24, time ,harmonic_speed , 80)
+            MyMIDI.addNote(1, channel, chord[index]-12, time ,harmonic_speed , 80)
+            MyMIDI.addNote(1, channel, chord[index]   , time ,harmonic_speed , 80)
+
+        
+        elif chord_mode == 'dynamic':
+            
+            MyMIDI.addNote(1, channel, chord[index]+24, time                     ,harmonic_speed*1/4 , 80)
+            MyMIDI.addNote(1, channel, chord[index]-12, time + harmonic_speed*1/4,harmonic_speed*1/4 , 80)
+            MyMIDI.addNote(1, channel, chord[index]+12, time + harmonic_speed*2/4,harmonic_speed*1/4 , 80)
+            MyMIDI.addNote(1, channel, chord[index]   , time + harmonic_speed*3/4,harmonic_speed*1/4 , 80)
+
         time = time + harmonic_speed
+        
         if time >= track1_time-1:
-            break
+                break
+        
     
 
 with open("MAQAM_PORJECT["
